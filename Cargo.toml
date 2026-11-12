@@ -1,0 +1,44 @@
+# Proyecto: Sistema de gestión de reservas hoteleras
+# Binario único: UI egui + API axum + SQLite (SQLx) + jobs en background
+[package]
+name = "hotel_reservas"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+eframe = { version = "0.28", default-features = false, features = ["default_fonts", "wgpu"] }
+# Habilita el backend DX12 de wgpu (eframe lo desactiva con default-features=false);
+# necesario para el adapter de software WARP en equipos sin GPU compatible
+wgpu = { version = "0.20", default-features = false, features = ["dx12", "wgsl"] }
+egui = "0.28"
+egui_extras = { version = "0.28", features = ["datepicker"] }
+axum = "0.7"
+tokio = { version = "1", features = ["full"] }
+sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio-rustls", "sqlite", "chrono", "uuid", "macros", "migrate"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+thiserror = "1"
+anyhow = "1"
+dotenvy = "0.15"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+calamine = "0.26"
+rust_xlsxwriter = "0.70"
+genpdf = "0.2"
+open = "5"
+rfd = "0.14"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tower-http = { version = "0.5", features = ["cors"] }
+
+[profile.release]
+# Compilación release más rápida durante desarrollo
+debug = false
+incremental = true
+
+# Parche local de egui-wgpu: fuerza force_fallback_adapter=true (WARP/DX12 por software)
+# para poder ejecutar la UI en equipos sin GPU física (sesiones RDP / VMs).
+# Único cambio respecto al crate original: src/lib.rs línea de request_adapter.
+[patch.crates-io]
+egui-wgpu = { path = "vendor/egui-wgpu-0.28.1" }
